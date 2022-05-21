@@ -44,3 +44,24 @@ func Encrypt(passphrase string, salt, text []byte) ([]byte, []byte, error) {
 	mode.CryptBlocks(ct, text)
 	return ct, salt, nil
 }
+
+func Decrypt(passphrase string, salt, ciphertext []byte) ([]byte, error) {
+	key, _, err := DeriveKey(passphrase, salt)
+	if err != nil {
+		return nil, err
+	}
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	mode := ecb.NewECBEncrypter(block)
+	text := make([]byte, len(ciphertext))
+	mode.CryptBlocks(text, ciphertext)
+	padder := padding.NewPkcs7Padding(mode.BlockSize())
+	text, err = padder.Unpad(text)
+	if err != nil {
+		return nil, err
+	}
+	return text, nil
+
+}
