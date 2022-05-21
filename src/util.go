@@ -10,15 +10,19 @@ import (
 	"golang.org/x/crypto/pbkdf2"
 )
 
+const ITERATIONS = 10000
+const KEYLEN = 32
+const SALTLEN = 32
+
 func DeriveKey(passphrase string, salt []byte) ([]byte, []byte, error) {
 	if salt == nil {
-		salt = make([]byte, 32)
+		salt = make([]byte, SALTLEN)
 		_, err := rand.Read(salt)
 		if err != nil {
 			return nil, nil, err
 		}
 	}
-	return pbkdf2.Key([]byte(passphrase), salt, 1000, 32, sha256.New), salt, nil
+	return pbkdf2.Key([]byte(passphrase), salt, ITERATIONS, KEYLEN, sha256.New), salt, nil
 }
 
 func Encrypt(passphrase string, salt, text []byte) ([]byte, []byte, error) {
