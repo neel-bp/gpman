@@ -35,12 +35,10 @@ type UserPass struct {
 	Salt     string `json:"salt"`
 }
 
-// make it a method
-func ToBase64(username, password, salt []byte) (string, string, string) {
-	username_base := base64.StdEncoding.EncodeToString(username)
-	password_base := base64.StdEncoding.EncodeToString(password)
-	salt_base := base64.StdEncoding.EncodeToString(salt)
-	return username_base, password_base, salt_base
+func (us *UserPass) Encode(username, password, salt []byte) {
+	us.Username = base64.StdEncoding.EncodeToString(username)
+	us.Password = base64.StdEncoding.EncodeToString(password)
+	us.Salt = base64.StdEncoding.EncodeToString(salt)
 }
 
 func (us UserPass) DecryptUserPass(passphrase string) (string, string, error) {
@@ -150,13 +148,10 @@ func JsonWriter(passphrase, site, username, password string) error {
 		return err
 	}
 
-	username_base, password_base, salt_base := ToBase64(username_enc, password_enc, salt)
+	// username_base, password_base, salt_base := ToBase64(username_enc, password_enc, salt)
 
-	userpass := UserPass{
-		Username: username_base,
-		Password: password_base,
-		Salt:     salt_base,
-	}
+	userpass := UserPass{}
+	userpass.Encode(username_enc, password_enc, salt)
 
 	jsonObj := map[string]UserPass{
 		site: userpass,
