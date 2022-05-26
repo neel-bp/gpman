@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	err := src.JsonDelete("Ch2")
+	err := src.JsonWriter("testman", "ch", "test1", "test2")
 	if err != nil {
 		log.Fatal(err)
 	}
