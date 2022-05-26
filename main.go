@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	err := src.JsonReader("Graffhead2", "Ch")
+	err := src.JsonReader("testman", "Ch1")
 	if err != nil {
 		log.Fatal(err)
 	}

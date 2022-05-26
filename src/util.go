@@ -28,6 +28,8 @@ const VAULT_JSON string = "vault.json"
 const VAULT_DIR string = "gpmanstore"
 
 var ErrNotFound = errors.New("nothing found against provided site/service")
+var ErrInvalidPaddingError = errors.New("crypto/padding: invalid padding size")
+var ErrWrongPassphrase = errors.New("decryption Error, Passphrase might be wrong")
 
 type UserPass struct {
 	Username string `json:"username"`
@@ -119,6 +121,9 @@ func Decrypt(passphrase string, salt, ciphertext []byte) ([]byte, error) {
 	mode.CryptBlocks(text, ciphertext)
 	padder := padding.NewPkcs7Padding(mode.BlockSize())
 	text, err = padder.Unpad(text)
+	if errors.As(err, &ErrInvalidPaddingError) {
+		return nil, ErrWrongPassphrase
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -216,7 +221,7 @@ func JsonReader(passphrase, site string) error {
 		return err
 	}
 
-	fmt.Printf("username: %s\npassword: %s", username, password)
+	fmt.Printf("username: %s\npassword: %s\n", username, password)
 	return nil
 
 }
