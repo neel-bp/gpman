@@ -225,3 +225,37 @@ func JsonReader(passphrase, site string) error {
 	return nil
 
 }
+
+func JsonDelete(site string) error {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+
+	JSON_FILE := filepath.Join(home, VAULT_DIR, VAULT_JSON)
+	content, err := ioutil.ReadFile(JSON_FILE)
+	if err != nil {
+		return err
+	}
+	unmarsheled := make(map[string]UserPass, 0)
+	err = json.Unmarshal(content, &unmarsheled)
+	if err != nil {
+		return err
+	}
+	_, ok := unmarsheled[site]
+	if !ok {
+		return ErrNotFound
+	}
+	delete(unmarsheled, site)
+
+	marshled, err := json.Marshal(unmarsheled)
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile(JSON_FILE, marshled, fs.FileMode(JSON_PERM))
+	if err != nil {
+		return err
+	}
+	return nil
+}
