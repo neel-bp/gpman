@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io/fs"
 	"io/ioutil"
+	"math/big"
 	"os"
 	"path/filepath"
 
@@ -258,4 +259,40 @@ func JsonDelete(site string) error {
 		return err
 	}
 	return nil
+}
+
+func genRandNum(nums []int64) (int64, error) {
+	bg := big.NewInt(int64(len(nums)))
+	n, err := rand.Int(rand.Reader, bg)
+	if err != nil {
+		return 0, err
+	}
+	return nums[n.Int64()], nil
+}
+
+func GenerateRandomPswd(length int, specialChars bool) (string, error) {
+	var nums []int64
+	var res string
+	if !specialChars {
+		for i := 65; i <= 90; i++ {
+			nums = append(nums, int64(i))
+		}
+		for i := 97; i <= 122; i++ {
+			nums = append(nums, int64(i))
+		}
+	} else {
+		for i := 32; i <= 126; i++ {
+			nums = append(nums, int64(i))
+		}
+	}
+
+	for i := 0; i < length; i++ {
+		num, err := genRandNum(nums)
+		if err != nil {
+			return res, err
+		}
+		res = res + string(rune(num))
+	}
+	return res, nil
+
 }
