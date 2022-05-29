@@ -1,14 +1,16 @@
 package main
 
 import (
-	"log"
+	"fmt"
+	"os"
 
 	"github.com/neel-bp/gpman/src"
 )
 
 func main() {
-	err := src.JsonWriter("testman", "ch", "test1", "test2")
+	err := src.CommandHandler(os.Args)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err.Error())
 	}
+
 }

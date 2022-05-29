@@ -7,7 +7,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/fs"
 	"io/ioutil"
 	"math/big"
@@ -196,34 +195,33 @@ func JsonWriter(passphrase, site, username, password string) error {
 
 }
 
-func JsonReader(passphrase, site string) error {
+func JsonReader(passphrase, site string) (string, string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return err
+		return "", "", err
 	}
 
 	JSON_FILE := filepath.Join(home, VAULT_DIR, VAULT_JSON)
 	content, err := ioutil.ReadFile(JSON_FILE)
 	if err != nil {
-		return err
+		return "", "", err
 	}
 	unmarsheled := make(map[string]UserPass, 0)
 	err = json.Unmarshal(content, &unmarsheled)
 	if err != nil {
-		return err
+		return "", "", err
 	}
 	data, ok := unmarsheled[site]
 	if !ok {
-		return ErrNotFound
+		return "", "", ErrNotFound
 	}
 
 	username, password, err := data.DecryptUserPass(passphrase)
 	if err != nil {
-		return err
+		return "", "", err
 	}
 
-	fmt.Printf("username: %s\npassword: %s\n", username, password)
-	return nil
+	return username, password, nil
 
 }
 
