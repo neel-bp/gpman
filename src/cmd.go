@@ -4,9 +4,11 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"os"
 	"syscall"
 
 	"github.com/atotto/clipboard"
+	"github.com/olekukonko/tablewriter"
 	"golang.org/x/term"
 )
 
@@ -129,6 +131,34 @@ func HandleDeleteCommand(args []string) error {
 	return nil
 }
 
+func HandleListCommand(args []string) error {
+	user_flag := ListCmd.Bool("u", false, "")
+	pass_flag := ListCmd.Bool("p", false, "")
+	HEADERS := []string{"site/service", "username", "password"}
+	var passphrase []byte
+	var err error
+	ListCmd.Parse(args)
+	if *user_flag || *pass_flag {
+		fmt.Print("enter passphrase: ")
+		passphrase, err = term.ReadPassword(int(syscall.Stdin))
+		if err != nil {
+			return err
+		}
+	}
+	data, err := ListPasses(string(passphrase), *user_flag, *pass_flag)
+	if err != nil {
+		return err
+	}
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader(HEADERS)
+	for _, v := range data {
+		table.Append(v)
+	}
+	fmt.Println()
+	table.Render()
+	return nil
+}
+
 func CommandHandler(args []string) error {
 	if len(args) < 2 {
 		fmt.Println("here's help bro")
@@ -141,8 +171,9 @@ func CommandHandler(args []string) error {
 		return HandleGetCommand(args[2:])
 	case DelCmd.Name():
 		return HandleDeleteCommand(args[2:])
+	case ListCmd.Name():
+		return HandleListCommand(args[2:])
 	default:
-		fmt.Printf("gpman %s: unknown command\nRun 'gpman help' for usage", args[1])
+		return fmt.Errorf("gpman %s: unknown command\nRun 'gpman help' for usage", args[1])
 	}
-	return nil
 }

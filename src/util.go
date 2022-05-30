@@ -294,3 +294,48 @@ func GenerateRandomPswd(length int, specialChars bool) (string, error) {
 	return res, nil
 
 }
+
+func ListPasses(passphrase string, user_flag, pass_flag bool) ([][]string, error) {
+	const placeHolder string = "********"
+	data := make([][]string, 0)
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return data, err
+	}
+	JSON_FILE := filepath.Join(home, VAULT_DIR, VAULT_JSON)
+	content, err := ioutil.ReadFile(JSON_FILE)
+	if err != nil {
+		return data, err
+	}
+	unmarsheled := make(map[string]UserPass, 0)
+	err = json.Unmarshal(content, &unmarsheled)
+	if err != nil {
+		return data, err
+	}
+
+	for k, v := range unmarsheled {
+		var username, password string
+		var innerSlice []string
+		innerSlice = append(innerSlice, k)
+		if user_flag || pass_flag {
+			username, password, err = v.DecryptUserPass(passphrase)
+			if err != nil {
+				return data, err
+			}
+		}
+		if !user_flag {
+			innerSlice = append(innerSlice, placeHolder)
+		} else {
+			innerSlice = append(innerSlice, username)
+		}
+		if !pass_flag {
+			innerSlice = append(innerSlice, placeHolder)
+		} else {
+			innerSlice = append(innerSlice, password)
+		}
+
+		data = append(data, innerSlice)
+	}
+	return data, nil
+
+}
