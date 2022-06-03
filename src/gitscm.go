@@ -44,7 +44,7 @@ func (g *GitInfo) Encrypt(passphrase, username, password, url string) error {
 	return nil
 }
 
-func GitInit(passphrase, url, username, access_token string) error {
+func GitAuthInit(passphrase, url, username, access_token string) error {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return err
