@@ -17,6 +17,7 @@ var GetCmd = flag.NewFlagSet("get", flag.ExitOnError)
 var ListCmd = flag.NewFlagSet("list", flag.ExitOnError)
 var DelCmd = flag.NewFlagSet("delete", flag.ExitOnError)
 var HelpCmd = flag.NewFlagSet("help", flag.ExitOnError)
+var GitAuthCmd = flag.NewFlagSet("gitauth", flag.ExitOnError)
 
 var HELPMAP = map[string]string{
 	SaveCmd.Name(): STOREHELP,
@@ -179,6 +180,52 @@ func HandleListCommand(args []string) error {
 	return nil
 }
 
+func HandleGitAuthCommand(args []string) error {
+	wizard := GitAuthCmd.Bool("w", false, "")
+	GitAuthCmd.Parse(args)
+
+	if *wizard {
+		var username, url string
+		var access_token, passphrase []byte
+
+		fmt.Print("repository-url: ")
+		_, err := fmt.Scan(&url)
+		if err != nil {
+			return err
+		}
+
+		fmt.Print("username: ")
+		_, err = fmt.Scan(&username)
+		if err != nil {
+			return err
+		}
+
+		fmt.Print("access_token: ")
+		access_token, err = term.ReadPassword(int(syscall.Stdin))
+		if err != nil {
+			return err
+		}
+
+		fmt.Print("\nenter passphrase: ")
+		passphrase, err = term.ReadPassword(int(syscall.Stdin))
+		if err != nil {
+			return err
+		}
+
+		return GitAuthInit(string(passphrase), url, username, string(access_token))
+	}
+
+	if len(GitAuthCmd.Args()) < 3 {
+		return ErrInsuficientArgs
+	}
+	fmt.Print("enter passphrase: ")
+	passphrase, err := term.ReadPassword(int(syscall.Stdin))
+	if err != nil {
+		return err
+	}
+	return GitAuthInit(string(passphrase), GitAuthCmd.Args()[0], GitAuthCmd.Args()[1], GitAuthCmd.Args()[2])
+}
+
 func HandleHelpCommand(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stdout, HELP)
@@ -209,6 +256,8 @@ func CommandHandler(args []string) error {
 		return HandleListCommand(args[2:])
 	case HelpCmd.Name():
 		return HandleHelpCommand(args[2:])
+	case GitAuthCmd.Name():
+		return HandleGitAuthCommand(args[2:])
 	default:
 		return fmt.Errorf("gpman %s: unknown command\nRun 'gpman help' for usage", args[1])
 	}

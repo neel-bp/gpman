@@ -20,6 +20,8 @@ const STOREHELP string = `
 Usage:	gpman store [OPTIONS] [ARGUMENTS...]
 
 store credentials (username/email, password) against a given site/service
+Note: when not using the wizard the order of argument is:
+[SITE/SERVICE] [USERNAME] [PASSWORD]
 
 Options:
 
