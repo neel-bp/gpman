@@ -13,6 +13,7 @@ import (
 )
 
 // TODO write HELP doc for git related commands
+// TODO find command or searching in  list command with flag or something
 
 var SaveCmd = flag.NewFlagSet("store", flag.ExitOnError)
 var GetCmd = flag.NewFlagSet("get", flag.ExitOnError)
