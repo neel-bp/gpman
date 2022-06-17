@@ -7,6 +7,12 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"time"
+
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/config"
+	"github.com/go-git/go-git/v5/plumbing/object"
+	"github.com/go-git/go-git/v5/plumbing/transport/http"
 )
 
 const GITAUTHFILE string = ".gpmangit"
@@ -111,6 +117,80 @@ func GitAuthInit(passphrase, url, username, access_token string) error {
 
 	FILE := filepath.Join(home, GITAUTHFILE)
 	err = ioutil.WriteFile(FILE, marsheled, fs.FileMode(JSON_PERM))
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func GitPush(passphrase string) error {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+	FILE := filepath.Join(home, GITAUTHFILE)
+	authjson, err := ioutil.ReadFile(FILE)
+	if err != nil {
+		return err
+	}
+	obj := GitInfo{}
+	err = json.Unmarshal(authjson, &obj)
+	if err != nil {
+		return err
+	}
+	username, password, url, err := obj.Decrypt(passphrase)
+	if err != nil {
+		return err
+	}
+
+	repoPath := filepath.Join(home, VAULT_DIR)
+	repo, err := git.PlainInit(repoPath, false)
+	if err == git.ErrRepositoryAlreadyExists {
+		repo, err = git.PlainOpen(repoPath)
+		if err != nil {
+			return err
+		}
+	}
+	if err != nil && err != git.ErrRepositoryAlreadyExists {
+		return err
+	}
+	_, err = repo.CreateRemote(&config.RemoteConfig{
+		Name: "origin",
+		URLs: []string{url},
+	})
+	if err != nil && err != git.ErrRemoteExists {
+		return err
+	}
+	w, err := repo.Worktree()
+	if err != nil {
+		return err
+	}
+	err = w.AddGlob(".")
+	if err != nil {
+		return err
+	}
+	_, err = w.Commit(time.Now().String(), &git.CommitOptions{
+		Author: &object.Signature{
+			Name: username,
+			When: time.Now(),
+		},
+	})
+	if err != nil {
+		return err
+	}
+
+	err = repo.Push(&git.PushOptions{
+		RemoteName: "origin",
+		Force:      true,
+		Progress:   os.Stdout,
+		Auth: &http.BasicAuth{
+			Username: username,
+			Password: password,
+		},
+	})
+
 	if err != nil {
 		return err
 	}
