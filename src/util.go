@@ -19,6 +19,7 @@ import (
 )
 
 // TODO: create method for encoding and decoding values from and to base64
+// TODO: currently using single salt for one pair, maybe use different salt each value in pair
 
 const ITERATIONS int = 10000
 const KEYLEN int = 32
