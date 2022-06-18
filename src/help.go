@@ -14,8 +14,8 @@ The commands are:
 	list        list all stored credentials
 	delete      delete credentials stored against given site/service
 	help        print help message or command specific help for given command
-	gitauth		connect remote git repository for syncing credentials
-	push		push all local credentials to remote git repository
+	gitauth	    connect remote git repository for syncing credentials
+	push        push all local credentials to remote git repository
 `
 
 const STOREHELP string = `
