@@ -16,6 +16,7 @@ The commands are:
 	help        print help message or command specific help for given command
 	gitauth	    connect remote git repository for syncing credentials
 	push        push all local credentials to remote git repository
+	pull        pull credentials from remote repository
 `
 
 const STOREHELP string = `

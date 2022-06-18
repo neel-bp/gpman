@@ -22,6 +22,7 @@ var DelCmd = flag.NewFlagSet("delete", flag.ExitOnError)
 var HelpCmd = flag.NewFlagSet("help", flag.ExitOnError)
 var GitAuthCmd = flag.NewFlagSet("gitauth", flag.ExitOnError)
 var GitPushCmd = flag.NewFlagSet("push", flag.ExitOnError) // don't really need it but eh!! just defined it for consistency
+var GitPullCmd = flag.NewFlagSet("pull", flag.ExitOnError) // don't really need it but eh!! just defined it for consistency
 
 var HELPMAP = map[string]string{
 	SaveCmd.Name(): STOREHELP,
@@ -239,6 +240,15 @@ func HandlePushCommand() error {
 	return GitPush(string(passphrase))
 }
 
+func HandlePullCommand() error {
+	fmt.Print("enter passphrase: ")
+	passphrase, err := term.ReadPassword(int(syscall.Stdin))
+	if err != nil {
+		return err
+	}
+	return GitPull(string(passphrase))
+}
+
 func HandleHelpCommand(args []string) error {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stdout, HELP)
@@ -273,6 +283,8 @@ func CommandHandler(args []string) error {
 		return HandleGitAuthCommand(args[2:])
 	case GitPushCmd.Name():
 		return HandlePushCommand()
+	case GitPullCmd.Name():
+		return HandlePullCommand()
 	default:
 		return fmt.Errorf("gpman %s: unknown command\nRun 'gpman help' for usage", args[1])
 	}

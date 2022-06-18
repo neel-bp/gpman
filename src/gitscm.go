@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 )
@@ -197,4 +198,95 @@ func GitPush(passphrase string) error {
 
 	return nil
 
+}
+
+// either make an empty commit before reset to get around the error
+// - reference not found in case repo is newly initiated
+// - or pull instead of fetch and reset in case of newly initiated repo
+func GitPull(passphrase string) error {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+	FILE := filepath.Join(home, GITAUTHFILE)
+	authjson, err := ioutil.ReadFile(FILE)
+	if err != nil {
+		return err
+	}
+	obj := GitInfo{}
+	err = json.Unmarshal(authjson, &obj)
+	if err != nil {
+		return err
+	}
+	username, password, url, err := obj.Decrypt(passphrase)
+	if err != nil {
+		return err
+	}
+
+	repoPath := filepath.Join(home, VAULT_DIR)
+	repo, err := git.PlainInit(repoPath, false)
+	if err == git.ErrRepositoryAlreadyExists {
+		repo, err = git.PlainOpen(repoPath)
+		if err != nil {
+			return err
+		}
+	}
+	if err != nil && err != git.ErrRepositoryAlreadyExists {
+		return err
+	}
+	_, err = repo.CreateRemote(&config.RemoteConfig{
+		Name: "origin",
+		URLs: []string{url},
+	})
+	if err != nil && err != git.ErrRemoteExists {
+		return err
+	}
+
+	err = repo.Fetch(&git.FetchOptions{
+		RemoteName: "origin",
+		Auth: &http.BasicAuth{
+			Username: username,
+			Password: password,
+		},
+		Progress: os.Stdout,
+		Force:    true,
+	},
+	)
+	if err != git.NoErrAlreadyUpToDate && err != nil {
+		return err
+	}
+
+	w, err := repo.Worktree()
+	if err != nil {
+		return err
+	}
+
+	err = w.Clean(&git.CleanOptions{Dir: true})
+	if err != nil {
+		return err
+	}
+
+	remoteRef, err := repo.Reference(plumbing.ReferenceName("refs/remotes/origin/master"), true)
+	if err != nil {
+		return err
+	}
+
+	_, err = w.Commit("empty commit to get around reference not found error", &git.CommitOptions{
+		All: false,
+		Author: &object.Signature{
+			Name: username,
+			When: time.Now(),
+		},
+	})
+
+	if err != nil {
+		return err
+	}
+
+	err = w.Reset(&git.ResetOptions{
+		Mode:   git.HardReset,
+		Commit: remoteRef.Hash(),
+	})
+
+	return err
 }
