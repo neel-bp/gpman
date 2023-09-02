@@ -83,10 +83,28 @@ connects gpman with git repository to pull passwords from, and or push password 
 Note: when not using the wizard the order of argument is:
 [REPOISTORY LINK] [USERNAME] [PERSONAL_ACCESS_TOKEN/PASSWORD]
 
-since github and probably other code hosting services that support git too have disabled
+since github and probably other code hosting services that support git, too have disabled
 support for passwords, personal access token must be used with gpman
 
 -w [BOOL]	starts git repo setup wizard which asks for repository link,
 		username, password/access_token and passphrase 
 		(passphrase is used to encrypt given values)
+`
+
+const PUSHHELP string = `
+Usage: gpman push
+
+pushes locally saved credentials/password to connected git repository,
+a git repository must be connected
+Note: push command, overwrites credentials/password saved in remote git repository
+with local ones
+`
+
+const PULLHELP string = `
+Usage: gpman pull
+
+pulls credentials/passwords from remote git repository,
+a git repository must be connected
+Note: pull command overwrites local credentials/password with ones 
+pulled from repository
 `

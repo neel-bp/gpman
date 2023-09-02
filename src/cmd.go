@@ -30,6 +30,8 @@ var HELPMAP = map[string]string{
 	ListCmd.Name():    LISTHELP,
 	DelCmd.Name():     DELHELP,
 	GitAuthCmd.Name(): GITAUTHHELP,
+	GitPushCmd.Name(): PUSHHELP,
+	GitPullCmd.Name(): PULLHELP,
 }
 
 // Errors =====
