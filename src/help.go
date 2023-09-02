@@ -75,3 +75,18 @@ Usage: gpman delete [SITE]:REQUIRED
 
 delete credentials stored against given site/service
 `
+
+const GITAUTHHELP string = `
+Usage: gpman gitauth [OPTIONS] [ARGUMENTS...]
+
+connects gpman with git repository to pull passwords from, and or push password to
+Note: when not using the wizard the order of argument is:
+[REPOISTORY LINK] [USERNAME] [PERSONAL_ACCESS_TOKEN/PASSWORD]
+
+since github and probably other code hosting services that support git too have disabled
+support for passwords, personal access token must be used with gpman
+
+-w [BOOL]	starts git repo setup wizard which asks for repository link,
+		username, password/access_token and passphrase 
+		(passphrase is used to encrypt given values)
+`

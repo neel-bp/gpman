@@ -25,10 +25,11 @@ var GitPushCmd = flag.NewFlagSet("push", flag.ExitOnError) // don't really need 
 var GitPullCmd = flag.NewFlagSet("pull", flag.ExitOnError) // don't really need it but eh!! just defined it for consistency
 
 var HELPMAP = map[string]string{
-	SaveCmd.Name(): STOREHELP,
-	GetCmd.Name():  GETHELP,
-	ListCmd.Name(): LISTHELP,
-	DelCmd.Name():  DELHELP,
+	SaveCmd.Name():    STOREHELP,
+	GetCmd.Name():     GETHELP,
+	ListCmd.Name():    LISTHELP,
+	DelCmd.Name():     DELHELP,
+	GitAuthCmd.Name(): GITAUTHHELP,
 }
 
 // Errors =====
@@ -187,6 +188,9 @@ func HandleListCommand(args []string) error {
 
 func HandleGitAuthCommand(args []string) error {
 	wizard := GitAuthCmd.Bool("w", false, "")
+	GitAuthCmd.Usage = func() {
+		fmt.Fprintln(GitAuthCmd.Output(), GITAUTHHELP)
+	}
 	GitAuthCmd.Parse(args)
 
 	if *wizard {
