@@ -1,6 +1,6 @@
 module github.com/neel-bp/gpman
 
-go 1.18
+go 1.21
 
 require (
 	github.com/andreburgaud/crypt2go v1.0.0
