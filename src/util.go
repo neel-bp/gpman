@@ -12,6 +12,7 @@ import (
 	"math/big"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/andreburgaud/crypt2go/ecb"
 	"github.com/andreburgaud/crypt2go/padding"
@@ -338,5 +339,31 @@ func ListPasses(passphrase string, user_flag, pass_flag bool) ([][]string, error
 		data = append(data, innerSlice)
 	}
 	return data, nil
+
+}
+
+func StoreOptionsForCompletionPredictor(prefix string) ([]string, error) {
+	res := make([]string, 0)
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return res, err
+	}
+	JSON_FILE := filepath.Join(home, VAULT_DIR, VAULT_JSON)
+	content, err := ioutil.ReadFile(JSON_FILE)
+	if err != nil {
+		return res, err
+	}
+	unmarsheled := make(map[string]interface{}, 0)
+	err = json.Unmarshal(content, &unmarsheled)
+	if err != nil {
+		return res, err
+	}
+
+	for k := range unmarsheled {
+		if strings.HasPrefix(strings.ToLower(k), strings.ToLower(prefix)) {
+			res = append(res, k)
+		}
+	}
+	return res, nil
 
 }

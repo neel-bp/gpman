@@ -8,6 +8,7 @@ import (
 )
 
 func main() {
+	src.GenerateCompletion()
 	err := src.CommandHandler(os.Args)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "\n%v\n", err)

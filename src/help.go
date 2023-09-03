@@ -32,7 +32,7 @@ Options:
 		and passphrase (passphrase is used to encrypt given values)
 
 -gp [INT]	generates a password of given length and stores it as 
-		password against given site/service, when given password prompt is skipped in wizard
+		password against given site/service, when given, password prompt is skipped in wizard
 		if wizard flag (-w) is not present password argument is no longer needed 
 		generated password is considered instead.
 
