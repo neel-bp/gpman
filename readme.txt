@@ -1,5 +1,8 @@
 -- installation
     go install github.com/neel-bp/gpman
+	
+	after installing, to enable bash completion run
+	COMP_INSTALL=1 gpman and then restart shell
 
 gpman is a simple cli password manager
 
