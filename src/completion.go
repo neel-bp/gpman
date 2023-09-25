@@ -36,7 +36,7 @@ func GenerateCompletion() {
 
 	getcmd := &complete.Command{
 		Flags: map[string]complete.Predictor{
-			"clip": predict.Nothing,
+			"clip": serviceSitePredictor,
 		},
 		Args: serviceSitePredictor,
 	}
